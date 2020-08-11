@@ -13,6 +13,7 @@ const uglify = require("gulp-uglify");
 const plumber = require("gulp-plumber");
 const imagemin = require("gulp-imagemin");
 const del = require("del");
+const babel = require('gulp-babel');
 const panini = require("panini");
 const browsersync = require("browser-sync").create();
 
@@ -20,10 +21,10 @@ const browsersync = require("browser-sync").create();
 /* Paths */
 var path = {
     build: {
-        html: "dist/",
-        js: "dist/assets/js/",
-        css: "dist/assets/css/",
-        images: "dist/assets/img/"
+        html: "docs/",
+        js: "docs/assets/js/",
+        css: "docs/assets/css/",
+        images: "docs/assets/img/"
     },
     src: {
         html: "src/*.html",
@@ -37,7 +38,7 @@ var path = {
         css: "src/assets/sass/**/*.scss",
         images: "src/assets/img/**/*.{jpg,png,svg,gif,ico}"
     },
-    clean: "./dist"
+    clean: "./docs"
 }
 
 
@@ -46,7 +47,7 @@ var path = {
 function browserSync(done) {
     browsersync.init({
         server: {
-            baseDir: "./dist/"
+            baseDir: "./docs/"
         },
         port: 3000
     });
@@ -92,6 +93,14 @@ function js() {
     return src(path.src.js, {base: './src/assets/js/'})
         .pipe(plumber())
         .pipe(rigger())
+        .pipe(gulp.dest(path.build.js))
+        .pipe(babel({
+            presets: ['@babel/env']
+        }))
+        .pipe(rename({
+            suffix: ".bbl",
+            extname: ".js"
+        }))
         .pipe(gulp.dest(path.build.js))
         .pipe(uglify())
         .pipe(rename({
